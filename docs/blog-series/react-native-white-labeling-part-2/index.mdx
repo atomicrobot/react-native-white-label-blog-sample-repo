@@ -29,7 +29,7 @@ services:
 
 ---
 
-> **Sample Repository:** The complete SDK and example apps referenced in this series are available at [AcmeOrg/white-label-sdk-sample](https://github.com/AcmeOrg/white-label-sdk-sample). Smaller code snippets are shown inline; longer implementations can be explored in the repo.
+> **Sample Repository:** The complete SDK and example apps referenced in this series are available at [atomicrobot/react-native-white-label-blog-sample-repo](https://github.com/atomicrobot/react-native-white-label-blog-sample-repo). Smaller code snippets are shown inline; longer implementations can be explored in the repo.
 
 Your theming system is going to make or break the whole white-label experience. Get it right, and clients can launch a fully branded app by changing a few hex codes. Get it wrong, and you'll spend forever hunting down hardcoded colors.
 
@@ -73,7 +73,7 @@ Common semantic colors include:
 
 The critical connection: in light mode, `tint` typically equals `brandColors.primary`. This is how changing one brand color cascades to every interactive element.
 
-*See the full brand and semantic color definitions: [`packages/sdk/src/tokens/colors.ts`](https://github.com/AcmeOrg/white-label-sdk-sample/tree/main/packages/sdk/src/tokens/colors.ts)*
+*See the full brand and semantic color definitions: [`packages/sdk/src/tokens/colors.ts`](https://github.com/atomicrobot/react-native-white-label-blog-sample-repo/tree/main/packages/sdk/src/tokens/colors.ts)*
 
 ### Layer 3: Light and Dark Variants
 
@@ -167,7 +167,7 @@ function MyComponent() {
 
 No hardcoded values. Every style references the theme. Change the theme, and this component updates automatically.
 
-*See the full hook implementation: [`packages/sdk/src/hooks/use-bot-theme.ts`](https://github.com/AcmeOrg/white-label-sdk-sample/tree/main/packages/sdk/src/hooks/use-bot-theme.ts)*
+*See the full hook implementation: [`packages/sdk/src/hooks/use-bot-theme.ts`](https://github.com/atomicrobot/react-native-white-label-blog-sample-repo/tree/main/packages/sdk/src/hooks/use-bot-theme.ts)*
 
 ## The Escape Hatch: useThemeColor
 
@@ -217,7 +217,7 @@ theme: {
 
 The key insight: all three levels use the same SDK. The client's complexity is their choice, not a requirement.
 
-*The advanced example demonstrates full semantic color overrides: [`examples/acme-health-advanced/config/bot.config.ts`](https://github.com/AcmeOrg/white-label-sdk-sample/tree/main/examples/acme-health-advanced/config/bot.config.ts)*
+*The advanced example demonstrates full semantic color overrides: [`examples/acme-health-advanced/config/bot.config.ts`](https://github.com/atomicrobot/react-native-white-label-blog-sample-repo/tree/main/examples/acme-health-advanced/config/bot.config.ts)*
 
 ## Common Patterns
 

@@ -29,14 +29,11 @@ services:
 
 ---
 
-> **Sample Repository:** The complete SDK and example apps referenced in this series are available at [AcmeOrg/white-label-sdk-sample](https://github.com/AcmeOrg/white-label-sdk-sample). Smaller code snippets are shown inline; longer implementations can be explored in the repo.
+> **Sample Repository:** The complete SDK and example apps referenced in this series are available at [atomicrobot/react-native-white-label-blog-sample-repo](https://github.com/atomicrobot/react-native-white-label-blog-sample-repo). Smaller code snippets are shown inline; longer implementations can be explored in the repo.
 
 Tokens and hooks are great, but they don't mean much until components are actually using them. In Part 2, we built the foundation — tokens, hooks, and resolution logic. Now let's build the pieces that turn all of that into real UI.
 
 The goal: components that look native to any brand without anyone touching the code.
-
-{/* TODO: Screenshot — Annotated Showcase screen showing typography, buttons, cards, and inputs with callouts identifying which themed component or token drives each element. */}
-![Annotated showcase of themed components — typography variants, button styles, card patterns, and input states](./components-annotated.webp)
 
 ## The Foundation: Themed Primitives
 
@@ -68,7 +65,7 @@ Key design decision: **links always use the brand primary color**, not the text 
 
 The style merge order matters: themed color → variant styles → user overrides. This lets users override any default while keeping sensible baselines.
 
-*See the full implementations: [`ThemedText.tsx`](https://github.com/AcmeOrg/white-label-sdk-sample/tree/main/packages/sdk/src/components/ThemedText.tsx) and [`ThemedView.tsx`](https://github.com/AcmeOrg/white-label-sdk-sample/tree/main/packages/sdk/src/components/ThemedView.tsx)*
+*See the full implementations: [`ThemedText.tsx`](https://github.com/atomicrobot/react-native-white-label-blog-sample-repo/tree/main/packages/sdk/src/components/ThemedText.tsx) and [`ThemedView.tsx`](https://github.com/atomicrobot/react-native-white-label-blog-sample-repo/tree/main/packages/sdk/src/components/ThemedView.tsx)*
 
 ### Text Hierarchy
 
@@ -83,7 +80,7 @@ We prefer option 1 for simplicity—one component that handles all text needs. B
 
 With `ThemedView` and `ThemedText` in place, you can build higher-level components. The pattern is always the same: use `useTheme()` to get colors and tokens, then apply them to styles.
 
-> **Heads up:** The `ThemedCard`, `ThemedButton`, and `ThemedInput` components discussed below are illustrative patterns — the SDK uses these patterns internally in its screen implementations rather than exporting them as standalone components. You'd build these for your own app using the same `useTheme()` approach. See [`examples/acme-health-advanced/components/`](https://github.com/AcmeOrg/white-label-sdk-sample/tree/main/examples/acme-health-advanced/components/) for working examples.
+> **Heads up:** The `ThemedCard`, `ThemedButton`, and `ThemedInput` components discussed below are illustrative patterns — the SDK uses these patterns internally in its screen implementations rather than exporting them as standalone components. You'd build these for your own app using the same `useTheme()` approach. See [`examples/acme-health-advanced/components/`](https://github.com/atomicrobot/react-native-white-label-blog-sample-repo/tree/main/examples/acme-health-advanced/components/) for working examples.
 
 ### The Variant Pattern
 
@@ -143,7 +140,7 @@ Change the theme, and every `ProfileCard` in the app updates. No hunting through
 
 **Platform-specific components** use file extensions: `HapticTab.ios.tsx`, `HapticTab.android.tsx`. Metro bundler automatically picks the right file. This keeps platform differences isolated without conditional logic cluttering your components.
 
-*See [`IconSymbol.tsx`](https://github.com/AcmeOrg/white-label-sdk-sample/tree/main/packages/sdk/src/components/ui/IconSymbol.tsx) for a platform-specific component example.*
+*See [`IconSymbol.tsx`](https://github.com/atomicrobot/react-native-white-label-blog-sample-repo/tree/main/packages/sdk/src/components/ui/IconSymbol.tsx) for a platform-specific component example.*
 
 ## Building Your Own Themed Components
 
