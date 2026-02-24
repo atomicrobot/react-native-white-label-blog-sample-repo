@@ -1,0 +1,31 @@
+/**
+ * Modal Screen
+ */
+import React from 'react';
+import { Link } from 'expo-router';
+import { StyleSheet } from 'react-native';
+import { ThemedText, ThemedView } from 'bot-sdk';
+
+export default function ModalScreen() {
+  return (
+    <ThemedView style={styles.container}>
+      <ThemedText type="title">Modal</ThemedText>
+      <Link href="/(tabs)/chat" dismissTo style={styles.link}>
+        <ThemedText type="link">Dismiss</ThemedText>
+      </Link>
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  link: {
+    marginTop: 15,
+    paddingVertical: 15,
+  },
+});

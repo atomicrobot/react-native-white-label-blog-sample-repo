@@ -1,0 +1,34 @@
+{
+  "name": "bot-sdk-sample",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sample repository demonstrating the Bot White-Label SDK",
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "example": "cd examples/acme-health && npx expo start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atomicrobot/bot-sdk-sample.git"
+  },
+  "keywords": [
+    "react-native",
+    "expo",
+    "white-label",
+    "sdk",
+    "theming"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "expo-asset": "^10.0.10"
+  },
+  "overrides": {
+    "expo-audio": {
+      "expo-asset": "$expo-asset"
+    }
+  }
+}

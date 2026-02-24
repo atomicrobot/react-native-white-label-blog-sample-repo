@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+expo-env.d.ts
+
+# Metro
+*.jsbundle
+*.bundle
+
+# iOS
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xccheckout
+*.moved-aside
+*.xcuserstate
+*.ipa
+*.hmap
+DerivedData/
+project.xcworkspace/
+.xcode.env.local
+Pods/
+build/
+
+# Android
+.gradle/
+.idea/
+local.properties
+*.iml
+*.hprof
+.cxx/
+
+# macOS
+.DS_Store
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
