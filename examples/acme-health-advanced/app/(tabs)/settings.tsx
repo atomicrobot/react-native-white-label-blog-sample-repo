@@ -116,8 +116,8 @@ export default function SettingsScreen() {
 
   return (
     <BaseSettingsScreen
-      // Show delete account option
-      showDeleteAccount={true}
+      // Show logout button
+      showLogout={true}
       // Inject custom content using render slots
       beforeLogout={<DangerZone />}
       // Add custom sections

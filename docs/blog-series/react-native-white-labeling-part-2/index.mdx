@@ -1,14 +1,16 @@
 ---
 date: 2026-02-10T14:00:00.000Z
-title: 'React Native White Labeling: Part 2'
+title: 'React Native Theming System: Design Tokens & Dark Mode'
 author: amanda-scheetz
 image: ./hero.webp
-excerpt: Build a flexible, type-safe theming system with design tokens, color schemes, automatic dark mode, and the useTheme hook for React Native white-label apps.
+excerpt: How to build a type-safe React Native theming system with layered design tokens, semantic colors, automatic dark mode, and the useTheme hook for white-label apps.
 keywords:
   - React Native
   - White Label
-  - Mobile Development
-  - Expo
+  - Design Tokens
+  - Theming
+  - Dark Mode
+  - TypeScript
 categories:
   - development
 services:
@@ -31,7 +33,9 @@ services:
 
 > **Sample Repository:** The complete SDK and example apps referenced in this series are available at [atomicrobot/react-native-white-label-blog-sample-repo](https://github.com/atomicrobot/react-native-white-label-blog-sample-repo). Smaller code snippets are shown inline; longer implementations can be explored in the repo.
 
-Your theming system is going to make or break the whole white-label experience. Get it right, and clients can launch a fully branded app by changing a few hex codes. Get it wrong, and you'll spend forever hunting down hardcoded colors.
+> **In brief**: A well-designed theming system lets clients launch a fully branded React Native app by changing a handful of values in a config file. This post builds that system from the ground up — brand colors, semantic tokens, dark mode detection, and the `useTheme` hook — with TypeScript ensuring every resolved value is guaranteed to exist. All code is in the [sample repo](https://github.com/atomicrobot/react-native-white-label-blog-sample-repo).
+
+Your theming system is going to make or break the whole white-label experience. Get it right, and clients can launch a fully branded app by changing a few hex codes. Get it wrong, and you'll spend forever hunting down hardcoded colors. This is the approach we bring to [React Native projects](/services/react-native-development/) at Atomic Robot, and it scales cleanly from a simple brand color swap to full enterprise design system parity.
 
 In this part, we'll build a theming system that's:
 - **Hierarchical**: Brand colors flow into semantic colors automatically
@@ -41,7 +45,7 @@ In this part, we'll build a theming system that's:
 
 ## Design Tokens: The Foundation
 
-Design tokens are the atomic values that define your visual language — like dialing in the settings on a camera before you start shooting. They're the variables that every component references instead of hardcoded values. When a client changes a token, every component using that token updates automatically.
+Design tokens are the variables every component references instead of hardcoded values. Change a token, and every component using it updates — that's what lets a client rebrand an entire app without touching a single component.
 
 We organize tokens into layers, each building on the previous one.
 
@@ -51,11 +55,13 @@ Brand colors are what clients customize first—they're the "personality" of the
 
 The key insight is that brand colors are *intentional*. A primary color of `#007AFF` (iOS blue) sends a different message than `#E91E63` (vibrant pink) or `#00796B` (professional teal). Clients choose these colors to match their existing brand identity.
 
+The specific slots — primary, secondary, status colors — follow the conventions you'll find across most design systems. We're not reinventing that; we're adopting a pattern clients already recognize and making it configurable.
+
 We provide sensible defaults (typically iOS system colors), but expect most clients to override at least the primary color.
 
 ### Layer 2: Semantic Colors
 
-Okay, so we have brand colors. But you don't want developers reaching for `brandColors.primary` every time they need to style text. That's where semantic colors come in. Instead of saying "use `#11181C` for text," we say "use the `text` color." The semantic name describes *purpose*, not appearance.
+Okay, so we have brand colors. But you don't want developers reaching for `brandColors.primary` every time they need to style text. That's where semantic colors come in. The semantic name describes *purpose*, not appearance — `colors.text` rather than a hardcoded hex.
 
 Why does this matter? Because semantic colors let us:
 
@@ -90,9 +96,9 @@ We define a `Colors` object with `light` and `dark` keys, each containing the fu
 
 ### Layer 4: Spacing and Border Radius
 
-You've seen apps where the padding is 16px here, 14px there, 20px somewhere else. You can't always put your finger on *why* it looks off, but it does. A spacing scale fixes that.
+Inconsistent spacing is the kind of thing that makes an app feel unpolished without anyone being able to say exactly why. A fixed scale eliminates the decision entirely.
 
-A typical spacing scale: `4, 8, 12, 16, 20, 24, 32, 48` (in density-independent pixels). Name them semantically: `xs`, `sm`, `md`, `lg`, `xl`, `xxl`.
+A typical spacing scale: `4, 8, 12, 16, 20, 24, 32, 48` (in density-independent pixels). This is a base-4/8 system — every value is a multiple of 4, with the main rhythm at 8px steps. It aligns with how Figma, iOS HIG, and Material Design think about spacing, so clients with existing design systems usually map onto it cleanly. Name the values semantically: `xs`, `sm`, `md`, `lg`, `xl`, `xxl`.
 
 Border radius works similarly. Larger values feel friendlier; smaller values feel more professional. A healthcare app might use `4-8px` radii; a consumer social app might use `16-24px`. Clients can override these to match their brand personality.
 
@@ -120,26 +126,53 @@ This cascade is the key to the whole system. The merging happens in a `resolveTh
 3. **Builds dark palette**: Same pattern, but dark mode `tint` might differ
 4. **Merges layout tokens**: Spacing and border radius follow the same pattern
 
+Here's an illustrative version of the function (see [`packages/sdk/src/provider/BotProvider.tsx`](https://github.com/atomicrobot/react-native-white-label-blog-sample-repo/tree/main/packages/sdk/src/provider/BotProvider.tsx) for the full implementation):
+
+```typescript
+function resolveTheme(config: BotConfig['theme']): ResolvedTheme {
+  // 1. Merge brand colors — user overrides win
+  const brandColors = {
+    ...BrandColors,
+    ...config?.brandColors,
+  };
+
+  // 2. Build light palette — connect tint to the resolved primary
+  const light = {
+    ...Colors.light,
+    ...config?.colors?.light,
+    tint: brandColors.primary,
+    tabIconSelected: brandColors.primary,
+  };
+
+  // 3. Build dark palette — same pattern
+  const dark = {
+    ...Colors.dark,
+    ...config?.colors?.dark,
+  };
+
+  // 4. Merge layout tokens
+  const spacing = { ...Spacing, ...config?.spacing };
+  const borderRadius = { ...BorderRadius, ...config?.borderRadius };
+
+  return { brandColors, colors: { light, dark }, spacing, borderRadius };
+}
+```
+
+A few things worth noting: the spread order matters — defaults first, client overrides second, so later values win. The `tint` and `tabIconSelected` connections to `brandColors.primary` happen *after* the light palette merge, so client-provided semantic overrides can still win over the brand color cascade. And the output is fully typed with no optionals, which means every component downstream can use values directly.
+
 The output type has no optionals—every value is guaranteed to exist. This means components never need to check "does this color exist?" They just use it.
-
-## Detecting the Color Scheme
-
-React Native provides `useColorScheme()` out of the box. For web, you'll need a custom hook that:
-- Returns `null` during SSR (to avoid hydration mismatches)
-- Uses the `matchMedia` API to detect system preference
-- Subscribes to changes (when users toggle system dark mode)
-
-Expo/Metro automatically picks platform-specific files (`.ios.tsx`, `.android.tsx`, `.web.tsx`), so you can provide different implementations without conditional logic in your components.
 
 ## The useTheme Hook
 
-The `useTheme` hook is the primary interface between your theme system and your components. It does three things:
+With the resolved theme in context, `useTheme` is the primary interface between the theme system and your components. React Native's `useColorScheme()` handles light/dark detection natively — that's all you need for a native-focused SDK. If you add web support down the line, Expo/Metro's file extension resolution (`.web.tsx`) lets you swap in a platform-specific implementation without touching any component code.
+
+The hook itself does three things:
 
 1. **Gets the resolved theme from context** (the merged result of defaults + client config)
 2. **Detects the current color scheme** (light or dark)
 3. **Returns everything a component needs** in a convenient shape
 
-What does "convenient shape" mean? Components typically need:
+Components typically need:
 - `colors` — the semantic colors for the *current* mode (not both modes)
 - `brandColors` — always available, regardless of mode
 - `spacing` and `borderRadius` — layout tokens
@@ -188,7 +221,7 @@ The type system is where TypeScript really shines for white-labeling. We use a k
 
 The `ThemeConfig` interface (what clients provide) uses `Partial<>` everywhere. Clients only specify what they want to override—everything else is optional.
 
-The `ResolvedTheme` interface (what the SDK guarantees after resolution) has no optionals. Every value is defined. This means components never need null checks or fallbacks; they just use the values.
+The `ResolvedTheme` interface (what the SDK guarantees after resolution) has no optionals — every value is defined, no null checks in components.
 
 This asymmetry is intentional. It makes the client experience simple (provide only what you need) while making the component experience safe (everything is guaranteed to exist).
 
@@ -227,15 +260,51 @@ Here are a few things we ran into while building with this system that are worth
 
 **Status mapping**: Components like status badges map semantic states (success, warning, error) to brand colors. A simple object lookup keeps this clean and maintainable.
 
-**Theme-aware shadows**: Shadows behave differently in dark mode—they need higher opacity to be visible, and often use pure black instead of gray. The `isDark` boolean from `useTheme()` makes this conditional styling straightforward.
+**Theme-aware shadows**: This is where the token system shows its limits — and where you learn something useful about shadows.
+
+The `shadows.ts` token file bakes in `shadowOpacity: 0.1` at definition time. No mode awareness. Then components like `BaseFeedScreen` use the same value inline:
+
+```typescript
+// BaseFeedScreen.tsx — postCard style
+shadowColor: '#000',
+shadowOffset: { width: 0, height: 1 },
+shadowOpacity: 0.1,   // same in light AND dark
+shadowRadius: 2,
+```
+
+In dark mode, a 10% opacity shadow on a dark surface is invisible. Shadows are subtractive in light mode — a dark shadow on a light background reads clearly — but on a dark surface you need to punch through with higher opacity. The fix is to pull `isDark` from `useTheme()` and compute it inline:
+
+```typescript
+function PostCard({ children }) {
+  const { colors, isDark } = useTheme();
+
+  return (
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: colors.surface,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: isDark ? 0.4 : 0.1,
+          shadowRadius: isDark ? 6 : 4,
+          elevation: isDark ? 6 : 2,
+        },
+      ]}
+    >
+      {children}
+    </View>
+  );
+}
+```
+
+This pattern comes up every time you have a card component. It's mechanical enough to inline rather than abstract, but easy to forget until your first dark mode QA pass.
 
 **Mode-specific adjustments**: Some colors can't be the same between modes. White text on a colored button works in light mode but may need adjustment in dark mode. The theme system gives you the tools; intentional design decisions are still required.
 
 ## Trade-offs and Considerations
 
-**Token proliferation**: 18 semantic colors might be overkill for simple apps. Start with fewer and add as needed.
-
-**Dark mode consistency**: It's tempting to just invert colors. Don't. Dark mode needs intentional design—shadows behave differently, contrast ratios change, and some colors need manual adjustment.
+**Token proliferation**: The 18 semantic colors here are drawn from patterns that come up repeatedly across projects — they cover what real components actually reach for. For a simple app, half that might be enough. Start with what you know you need and add tokens as components ask for them.
 
 **Performance**: Every component using `useTheme` re-renders on theme change. For most apps this is fine. For performance-critical lists, consider passing colors as props or memoizing.
 
@@ -244,6 +313,8 @@ Here are a few things we ran into while building with this system that are worth
 ## What's Next
 
 We've built the foundation. In **Part 3**, we'll create the components that consume this theme system—ThemedText, ThemedView, and patterns for building your own themed components.
+
+Working on a white-label or multi-brand [mobile app](/services/mobile-app-development/) and want to talk through how theming fits into the bigger architecture? Atomic Robot's mobile development team works with teams navigating exactly these decisions. [Reach out to us](/contact/) — we'd be happy to help.
 
 ---
 

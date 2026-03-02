@@ -1,13 +1,14 @@
 /**
  * Hook for getting theme-aware colors
  */
-import { Colors, SemanticColors } from '../tokens/colors';
+import { SemanticColors } from '../tokens/colors';
 import { useColorScheme } from './use-color-scheme';
+import { useBotTheme } from '../provider/BotProvider';
 
 type ColorName = keyof SemanticColors;
 
 /**
- * Returns a color value based on the current color scheme
+ * Returns a color value based on the current color scheme and resolved BotProvider config.
  *
  * @param props - Optional light/dark color overrides
  * @param colorName - The semantic color name from the theme
@@ -24,11 +25,12 @@ export function useThemeColor(
   colorName: ColorName
 ): string {
   const theme = useColorScheme() ?? 'light';
+  const botTheme = useBotTheme();
   const colorFromProps = props[theme];
 
   if (colorFromProps) {
     return colorFromProps;
-  } else {
-    return Colors[theme][colorName];
   }
+
+  return botTheme.colors[theme][colorName];
 }

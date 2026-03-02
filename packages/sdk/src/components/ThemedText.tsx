@@ -1,6 +1,6 @@
 import { StyleSheet, Text, type TextProps } from 'react-native';
 import { useThemeColor } from '../hooks/use-theme-color';
-import { BrandColors } from '../tokens/colors';
+import { useTheme } from '../hooks/use-bot-theme';
 
 export type ThemedTextProps = TextProps & {
   /** Light mode text color override */
@@ -29,6 +29,7 @@ export function ThemedText({
   ...rest
 }: ThemedTextProps) {
   const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+  const { brandColors } = useTheme();
 
   return (
     <Text
@@ -38,7 +39,7 @@ export function ThemedText({
         type === 'title' ? styles.title : undefined,
         type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
         type === 'subtitle' ? styles.subtitle : undefined,
-        type === 'link' ? styles.link : undefined,
+        type === 'link' ? [styles.link, { color: brandColors.primary }] : undefined,
         style,
       ]}
       {...rest}
@@ -68,6 +69,5 @@ const styles = StyleSheet.create({
   link: {
     lineHeight: 30,
     fontSize: 16,
-    color: BrandColors.primary,
   },
 });

@@ -1,14 +1,15 @@
 ---
 date: 2026-02-17T14:00:00.000Z
-title: 'React Native White Labeling: Part 3'
+title: 'React Native Themed Components: White-Label UI Patterns'
 author: amanda-scheetz
 image: ./hero.webp
-excerpt: Create flexible, theme-aware React Native components — from ThemedText and ThemedView to buttons, cards, and composition patterns that adapt to any brand.
+excerpt: Build theme-aware React Native components — ThemedText, ThemedView, the variant pattern, and composition techniques that keep any white-label brand consistent.
 keywords:
   - React Native
   - White Label
-  - Mobile Development
-  - Expo
+  - Themed Components
+  - TypeScript
+  - Component Library
 categories:
   - development
 services:
@@ -31,7 +32,9 @@ services:
 
 > **Sample Repository:** The complete SDK and example apps referenced in this series are available at [atomicrobot/react-native-white-label-blog-sample-repo](https://github.com/atomicrobot/react-native-white-label-blog-sample-repo). Smaller code snippets are shown inline; longer implementations can be explored in the repo.
 
-Tokens and hooks are great, but they don't mean much until components are actually using them. In Part 2, we built the foundation — tokens, hooks, and resolution logic. Now let's build the pieces that turn all of that into real UI.
+> **In brief**: Tokens and hooks are only as good as the components that use them. This post builds the component layer of the white-label SDK — themed primitives (`ThemedText`, `ThemedView`), the variant pattern for buttons and cards, and a composition approach where developers add UI without ever hardcoding a color or spacing value.
+
+Tokens and hooks are great, but they don't mean much until components are actually using them. In Part 2, we built the foundation — tokens, hooks, and resolution logic. Now let's build the pieces that turn all of that into real UI — the component layer that makes a [React Native](/services/react-native-development/) white-label SDK actually feel polished.
 
 The goal: components that look native to any brand without anyone touching the code.
 
@@ -138,7 +141,7 @@ Change the theme, and every `ProfileCard` in the app updates. No hunting through
 
 **Icons** need theme colors too. Create a `ThemedIcon` wrapper around your icon library that maps semantic color names (`primary`, `secondary`, `brand`) to resolved theme values.
 
-**Platform-specific components** use file extensions: `HapticTab.ios.tsx`, `HapticTab.android.tsx`. Metro bundler automatically picks the right file. This keeps platform differences isolated without conditional logic cluttering your components.
+**Platform-specific components** use file extensions: `IconSymbol.tsx`, `IconSymbol.ios.tsx`. Metro bundler automatically picks the right file. This keeps platform differences isolated without conditional logic cluttering your components.
 
 *See [`IconSymbol.tsx`](https://github.com/atomicrobot/react-native-white-label-blog-sample-repo/tree/main/packages/sdk/src/components/ui/IconSymbol.tsx) for a platform-specific component example.*
 
@@ -177,6 +180,8 @@ Export both the component and its props type for TypeScript users. Clients impor
 ## What's Next
 
 We have tokens (Part 2) and components (Part 3). In **Part 4**, we'll build the configuration architecture—the provider that ties everything together, two-tier screens, and render slots that let clients customize without code changes.
+
+Building a white-label or multi-brand [mobile app](/services/mobile-app-development/) and want to talk through the component architecture? Atomic Robot's mobile development team works with teams navigating exactly these decisions. [Reach out to us](/contact/) — we'd be happy to help.
 
 ---
 

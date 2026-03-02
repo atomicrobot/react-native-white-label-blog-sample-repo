@@ -1,9 +1,9 @@
 ---
 date: 2026-02-03T14:00:00.000Z
-title: "React Native White Labeling: Part 1"
+title: "React Native White Label SDK: Multi-Brand App Architecture"
 author: amanda-scheetz
 image: ./hero.webp
-excerpt: A four-part guide to building production-ready white-label apps with React Native Expo — starting with the architecture overview and three pillars of a successful SDK.
+excerpt: How to architect a React Native white-label SDK for multi-brand apps — theming, reusable components, and type-safe configuration from a single Expo codebase.
 keywords:
   - React Native
   - White Label
@@ -19,7 +19,7 @@ services:
     }
 ---
 
-# White-Label SDK Series: Part 1 — The Big Picture
+# React Native White Labeling: Part 1 — The Big Picture
 
 _A four-part guide to building production-ready white-label apps with React Native Expo_
 
@@ -38,13 +38,19 @@ _A four-part guide to building production-ready white-label apps with React Nati
 
 You've built an app that works. Now the business wants to sell it to three different clients, each with their own brand. Marketing wants a dark mode. The enterprise client needs custom authentication. And everyone wants it yesterday.
 
-This is the white-label problem, and solving it poorly means maintaining three codebases forever. Solving it well means one SDK, infinite brands.
+This is the white-label challenge: shipping the same core product under multiple brands, each with its own look and feel, feature set, and backend—without maintaining a separate codebase for each.
+
+The most common answer to this problem is a template project. Fork it for each new client, tweak the colors, ship it. That works fine until the original template gets a bug fix—now you have three repos to patch, and that's assuming you remember to update all of them. A new feature becomes three migrations. A design system refresh becomes a project in itself. You're not building one product anymore; you're maintaining a fleet.
+
+The better answer is an SDK. One codebase provides the functionality. Client apps consume it and supply only what makes them different. Bug fixes ship once and reach everyone. Solving it well means one SDK, infinite brands.
 
 ![Two branded apps built from the same SDK — one with a pink theme, one with teal](./images/theme_compare.webp)
 
+> **In brief**: A React Native white-label SDK gives you one codebase and per-client config files. This series builds one from scratch across three layers—a theming system, a reusable component library, and a type-safe configuration model—so multiple brands can ship independently without ever touching the SDK itself.
+
 ## What We're Building
 
-Over this four-part series, we'll construct a complete white-label SDK for React Native Expo. By the end, you'll have:
+Over this four-part series, we'll construct a complete white-label SDK for [React Native](/services/react-native-development/) Expo. By the end, you'll have:
 
 - A **theming system** that handles colors, typography, spacing, and dark mode automatically
 - A library of **reusable components** that adapt to any brand
@@ -72,11 +78,17 @@ const config: BotConfig = {
 
 Three files. Fully branded app. No SDK modifications.
 
-_See the full config in the sample repository: [`examples/acme-health/config/bot.config.ts`](https://github.com/atomicrobot/react-native-white-label-blog-sample-repo/tree/main/examples/acme-health/config/bot.config.ts)_
+_See the full config in the sample repository: [`examples/acme-health-advanced/config/bot.config.ts`](https://github.com/atomicrobot/react-native-white-label-blog-sample-repo/tree/main/examples/acme-health-advanced/config/bot.config.ts)_
 
 ## The Architecture Overview
 
 ![Architecture overview: Client App config flows into BotProvider, which resolves defaults and provides context to the Theme System (Part 2), Components Library (Part 3), and Screens (Part 4).](./images/flowchart.webp)
+
+At the center sits `BotProvider`. Your client app passes a single config object in. The provider resolves it—merging your values with SDK defaults—and makes the result available everywhere via React Context. From there, three systems consume it: the theme engine (Part 2), the component library (Part 3), and the screen implementations (Part 4).
+
+Nothing in the SDK reaches into client code. Everything flows one direction. That constraint is what keeps the SDK and client apps independently upgradeable: the SDK can ship a new feature or fix a bug, and client apps get it on the next install with zero code changes.
+
+_(Quick note on naming: we use a `Bot` prefix throughout—`BotProvider`, `BotConfig`, `useBotTheme`—as a nod to [Atomic Robot](https://atomicrobot.com). Feel free to rename it if you're building your own SDK.)_
 
 ## SDK Folder Structure
 
@@ -139,7 +151,9 @@ We'll explore how to build components that are flexible without being complicate
 
 ### Pillar 3: Configuration (Part 4)
 
-Configuration is what makes white-labeling possible:
+Configuration is what makes white-labeling possible—and it's the hardest pillar to get right. Not because the TypeScript is complex, but because you're designing the developer experience for every team that will use the SDK. Every option you expose is a decision about what to abstract and what to leave in the client's hands. Get the shape wrong and clients hit walls; make it too flexible and the SDK becomes an assembly puzzle.
+
+The two-tier screen system lives in this pillar, and it exists specifically to thread that needle: preset screens let clients pick up a working feature with one config option, while base screens hand full control back when their brand or UX requirements need it.
 
 - **Type-safe config**: Full TypeScript support with autocomplete
 - **Smart defaults**: Everything works without configuration
@@ -175,13 +189,13 @@ Every component, hook, and screen pulls from this context.
 
 ## Why This Approach Works
 
-If you've worked on white-label projects before, you know how quickly things can spiral. Here's what keeps this one manageable:
+The template-forking approach feels faster at the start. It's only when you're three clients deep, with diverging bugs and a design system that needs updating everywhere, that the cost becomes obvious. This architecture is designed to avoid that.
 
-- **One config, one brand.** No hunting through code to find where a color is defined. Everything lives in a single file.
-- **SDK and config stay separate.** The SDK provides functionality. The config provides customization. They never mix, which means upgrading the SDK doesn't break client apps.
-- **Start simple, go deep when you need to.** Preset screens get you a working app in minutes. Base screens with render slots are there when clients need full control.
-- **TypeScript does the heavy lifting.** Config errors get caught before runtime, and clients get autocomplete on every option.
-- **New features don't break old apps.** Every config option has a sensible default, so existing apps keep working when we add new options.
+- **One config, one brand.** No hunting through code to find where a color is defined. Everything lives in a single file. When a client wants a new primary color, that's one property change—not a find-and-replace across a codebase.
+- **SDK and config stay separate.** The SDK provides functionality. The config provides customization. They never mix. That means the SDK can ship a bug fix or a new feature, and client apps get it on the next install without touching their own code.
+- **Start simple, go deep when you need to.** Preset screens work out-of-the-box. Base screens with render slots hand back control when a client's UX requirements go beyond what a config option can handle.
+- **TypeScript does the heavy lifting.** Config errors are caught before runtime. Clients get autocomplete on every option, and the compiler tells them when a value is out of range or missing.
+- **New features don't break old apps.** Every config option has a sensible default. Existing apps keep working when new options are added to the SDK—opt in when ready, ignore until then.
 
 ## Prerequisites
 
@@ -200,7 +214,7 @@ In **Part 3**, we'll create the component library—ThemedText, ThemedView, and 
 
 In **Part 4**, we'll design the configuration architecture—type definitions, the provider, two-tier screens, and render slots.
 
-Let's dive in.
+Building a white-label app and want a second opinion on your architecture? Atomic Robot's [mobile development team](/services/mobile-app-development/) works with teams navigating exactly these decisions. [Reach out to us](https://atomicrobot.com/contact/) — we'd be happy to help.
 
 ---
 
@@ -208,4 +222,4 @@ Let's dive in.
 
 ---
 
-Photo by [Romain Dégrés]("https://unsplash.com/@raaaomin?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText") on [Unsplash]("https://unsplash.com/photos/gray-and-black-canon-ae-1-camera-on-wooden-surface-7SmpToKLiNA?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText")
+Photo by [Romain Dégrés](https://unsplash.com/@raaaomin?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText) on [Unsplash](https://unsplash.com/photos/gray-and-black-canon-ae-1-camera-on-wooden-surface-7SmpToKLiNA?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText)

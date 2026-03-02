@@ -15,7 +15,7 @@ const botConfig: BotConfig = {
   // Required: Your app's name
   appName: 'Acme Health',
 
-  // Theme customization - Acme Health uses a teal color palette
+  // Theme customization - Acme Health uses a pink/magenta color palette
   theme: {
     brandColors: {
       // Primary vibrant pink - used for main actions, links, active states

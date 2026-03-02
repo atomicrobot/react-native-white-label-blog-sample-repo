@@ -1,14 +1,16 @@
 ---
 date: 2026-02-24T14:00:00.000Z
-title: 'React Native White Labeling: Part 4'
+title: 'React Native SDK Config: Two-Tier Screens & Render Slots'
 author: amanda-scheetz
 image: ./hero.webp
-excerpt: Design a type-safe configuration architecture with two-tier screens and render slots that lets clients launch branded apps without touching SDK code.
+excerpt: Design a type-safe React Native SDK config system with BotProvider, two-tier screens, and render slots — clients launch fully branded apps from one config file.
 keywords:
   - React Native
   - White Label
-  - Mobile Development
-  - Expo
+  - TypeScript
+  - SDK Architecture
+  - Configuration
+  - Render Slots
 categories:
   - development
 services:
@@ -31,7 +33,9 @@ services:
 
 > **Sample Repository:** The complete SDK and example apps referenced in this series are available at [atomicrobot/react-native-white-label-blog-sample-repo](https://github.com/atomicrobot/react-native-white-label-blog-sample-repo). Smaller code snippets are shown inline; longer implementations can be explored in the repo.
 
-We've built the theming system and component library. Now comes the piece that makes white-labeling actually work: the configuration architecture.
+> **In brief**: Configuration is what turns a component library into a white-label SDK. This post builds the full config architecture — typed interfaces, smart defaults, `BotProvider`, two-tier screens (preset for zero-code clients, base for full control), and render slots that let clients inject custom UI without touching SDK code.
+
+We've built the theming system and component library. Now comes the piece that makes white-labeling actually work: the configuration architecture. It's also what determines how fast a new client can go from zero to a branded [mobile app](/services/mobile-app-development/) — and how much SDK maintenance you'll carry long-term.
 
 The goal: **clients launch a fully branded app by editing one config file, with zero code changes to the SDK.**
 
@@ -272,6 +276,8 @@ There's plenty more you could build on top of this — CI/CD pipelines that gene
 If you want to see all of this working together, clone the [sample repository](https://github.com/atomicrobot/react-native-white-label-blog-sample-repo), swap in your own brand colors, and see how fast you can get a branded app running. That's the best way to get a feel for the architecture.
 
 Happy building.
+
+If you're planning a white-label SDK or a multi-brand [mobile app](/services/mobile-app-development/) and want to talk through architecture decisions with a team that's built one, [reach out to us](/contact/) — we'd be happy to dig in.
 
 ---
 
