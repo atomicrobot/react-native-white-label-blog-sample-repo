@@ -92,40 +92,33 @@ export interface BotProviderProps {
  * }
  * ```
  */
+function resolveTheme(config: BotConfig['theme']): ResolvedTheme {
+  const brandColors: BrandColorsType = {
+    ...BrandColors,
+    ...config?.brandColors,
+  };
+
+  const light: SemanticColors = {
+    ...Colors.light,
+    ...config?.colors?.light,
+    tint: brandColors.primary,
+    tabIconSelected: brandColors.primary,
+  };
+
+  const dark: SemanticColors = {
+    ...Colors.dark,
+    ...config?.colors?.dark,
+  };
+
+  const spacing: SpacingType = { ...Spacing, ...config?.spacing };
+  const borderRadius: BorderRadiusType = { ...BorderRadius, ...config?.borderRadius };
+
+  return { brandColors, colors: { light, dark }, spacing, borderRadius };
+}
+
 export function BotProvider({ config, children, authHandlers }: BotProviderProps) {
   const resolvedConfig = useMemo((): ResolvedBotConfig => {
-    // Merge brand colors
-    const resolvedBrandColors: BrandColorsType = {
-      ...BrandColors,
-      ...config.theme?.brandColors,
-    };
-
-    // Merge semantic colors for light mode
-    const resolvedLightColors: SemanticColors = {
-      ...Colors.light,
-      ...config.theme?.colors?.light,
-      // Apply brand colors to semantic colors
-      tabIconSelected: config.theme?.brandColors?.primary ?? BrandColors.primary,
-      tint: config.theme?.brandColors?.primary ?? BrandColors.primary,
-    };
-
-    // Merge semantic colors for dark mode
-    const resolvedDarkColors: SemanticColors = {
-      ...Colors.dark,
-      ...config.theme?.colors?.dark,
-    };
-
-    // Merge spacing
-    const resolvedSpacing: SpacingType = {
-      ...Spacing,
-      ...config.theme?.spacing,
-    };
-
-    // Merge border radius
-    const resolvedBorderRadius: BorderRadiusType = {
-      ...BorderRadius,
-      ...config.theme?.borderRadius,
-    };
+    const resolvedTheme = resolveTheme(config.theme);
 
     // Resolve URLs with defaults
     const resolvedUrls: ResolvedUrls = {
@@ -180,15 +173,7 @@ export function BotProvider({ config, children, authHandlers }: BotProviderProps
 
     return {
       appName: config.appName,
-      theme: {
-        brandColors: resolvedBrandColors,
-        colors: {
-          light: resolvedLightColors,
-          dark: resolvedDarkColors,
-        },
-        spacing: resolvedSpacing,
-        borderRadius: resolvedBorderRadius,
-      },
+      theme: resolvedTheme,
       urls: resolvedUrls,
       features: resolvedFeatures,
       auth: {
